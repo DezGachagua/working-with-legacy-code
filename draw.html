@@ -1,0 +1,112 @@
+<!-- A snippet of how legacy code works with object parameters and default values -->
+<!-- I used the instance of drawing a canvas to illustrate this -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Draw-Version</title>
+    <style>
+      #canvas {
+        background-image: -moz-radial-gradient(30px 30px, #9a8c98, #c9ada7);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="640" height="480">
+      <strong>Attention! Your browser does not support canvas</strong>
+    </canvas>
+
+    <script>
+      _KSM = {
+        // width and height params enable the function to draw rectangles of any size...
+        // .. at any location on the canvas
+
+        draw: function (left, top, width, height, stroke, fill) {
+          // Draw something on the canvas
+          var canvas = document.getElementById("canvas");
+          options = {}; // create a new options object
+
+          if (canvas.getContext) {
+            var context = canvas.getContext("2d");
+            if (typeof left !== "undefined")
+              if (typeof left === "object") options = left;
+              else
+                options = {
+                  left: left,
+                  top: top,
+                  width: width,
+                  height: height,
+                  stroke: stroke,
+                  fill: fill,
+                };
+
+            // Setting canvas width will clear its contents
+            // addition of the new property clear won't break any legacy, new or future code
+            if (options.clear) canvas.width = canvas.width;
+
+            options.left = options.left || _KSM.drawOptions.left;
+
+            options.top = options.top || _KSM.drawOptions.top;
+
+            options.width = options.width || _KSM.drawOptions.width;
+
+            options.height = options.height || _KSM.drawOptions.height;
+
+            options.stroke = options.stroke || _KSM.drawOptions.stroke;
+
+            options.fill = options.fill || _KSM.drawOptions.fill;
+
+            context.strokeStyle = options.stroke;
+            context.fillStyle = options.fill;
+
+            context.fillRect(
+              options.left,
+              options.top,
+              options.width,
+              options.height
+            );
+
+            context.strokeRect(
+              options.left,
+              options.top,
+              options.width,
+              options.height
+            );
+          }
+        },
+        // In this object, we have all our named parameters together with their default values
+        drawOptions: {
+          left: 10,
+          top: 10,
+          width: 100,
+          height: 100,
+          stroke: "black",
+          fill: "silver",
+          clear: false,
+        },
+      };
+      // Legacy code works as default values will help from them breaking
+      // we can override the default colors scheme initially declared without having to make risky changes to all the legacy code
+      _KSM.drawOptions.stroke = "#e71d36";
+      _KSM.drawOptions.fill = "#f4f1de";
+      //
+      _KSM.draw();
+      _KSM.draw(530, 370);
+      _KSM.draw(100, 100, 440, 280);
+      _KSM.draw(120, 120, 400, 240, "burlywood", "lemonchiffon");
+      _KSM.draw(530, 10, 100, 100, "red", "teal");
+      _KSM.draw(10, 310, 160, 160, "red");
+      // Problems with readability
+      _KSM.draw(270, undefined, undefined, undefined, undefined, "green");
+      // a rectangle as a footer
+      _KSM.draw({ stroke: "red", left: 140, top: 450, width: 360, height: 20 });
+      // Latest code
+      /*_KSM.drawOptions.stroke = "#e71d36";
+      _KSM.drawOptions.fill = "#f4f1de";
+      _KSM.draw({ clear: true });
+      _KSM.draw(530, 370);*/
+    </script>
+  </body>
+</html>
